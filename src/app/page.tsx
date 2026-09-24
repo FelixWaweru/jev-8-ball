@@ -33,7 +33,7 @@ function ballTextForError(error: unknown): string {
 }
 
 export default function Home() {
-  const { apiKey } = useApiKey();
+  const { apiKey, openApiKeyDialog } = useApiKey();
   const [isProcessing, setIsProcessing] = useState(false);
   const [ballText, setBallText] = useState("ASK ME ANYTHING");
   const [result, setResult] = useState<JevDecisionResult | null>(null);
@@ -53,6 +53,7 @@ export default function Home() {
   ) => {
     if (!apiKey) {
       setBallText("API KEY REQUIRED");
+      openApiKeyDialog();
       return;
     }
     if (!prompt.trim()) return;

@@ -1,18 +1,31 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useApiKey } from "@/context/api-key-context";
 import { KeyRound, ShieldCheck, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export function Header() {
-  const { apiKey, setApiKey } = useApiKey();
-  const [isOpen, setIsOpen] = useState(false);
+  const {
+    apiKey,
+    setApiKey,
+    isApiKeyDialogOpen,
+    openApiKeyDialog,
+    closeApiKeyDialog,
+  } = useApiKey();
   const [tempKey, setTempKey] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!isApiKeyDialogOpen) return;
+    setTempKey(apiKey);
+    const id = window.setTimeout(() => inputRef.current?.focus(), 0);
+    return () => window.clearTimeout(id);
+  }, [isApiKeyDialogOpen, apiKey]);
 
   const handleSave = () => {
     setApiKey(tempKey);
-    setIsOpen(false);
+    closeApiKeyDialog();
   };
 
   return (
@@ -28,10 +41,7 @@ export function Header() {
 
       <button
         type="button"
-        onClick={() => {
-          setTempKey(apiKey);
-          setIsOpen(true);
-        }}
+        onClick={openApiKeyDialog}
         className={`flex flex-shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium transition-all ${
           apiKey
             ? "border-green-500/20 bg-green-500/10 text-green-400 hover:bg-green-500/20"
@@ -47,7 +57,7 @@ export function Header() {
       </button>
 
       <AnimatePresence>
-        {isOpen && (
+        {isApiKeyDialogOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
@@ -61,7 +71,7 @@ export function Header() {
                 </h2>
                 <button
                   type="button"
-                  onClick={() => setIsOpen(false)}
+                  onClick={closeApiKeyDialog}
                   className="rounded-md p-1 text-zinc-400 transition-colors hover:bg-white/10 hover:text-white"
                 >
                   <X size={18} />
@@ -85,10 +95,14 @@ export function Header() {
                     API Key
                   </label>
                   <input
+                    ref={inputRef}
                     type="password"
                     value={tempKey}
                     onChange={(e) => setTempKey(e.target.value)}
                     placeholder="sk-or-..."
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleSave();
+                    }}
                     className="w-full rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-white transition-all focus:border-transparent focus:ring-2 focus:ring-zinc-700 focus:outline-none"
                   />
                 </div>
@@ -96,7 +110,7 @@ export function Header() {
               <div className="flex justify-end gap-2 border-t border-white/5 bg-white/[0.02] p-4">
                 <button
                   type="button"
-                  onClick={() => setIsOpen(false)}
+                  onClick={closeApiKeyDialog}
                   className="rounded-lg px-3 py-1.5 text-sm font-medium text-zinc-400 transition-colors hover:bg-white/5 hover:text-white"
                 >
                   Cancel
@@ -106,7 +120,7 @@ export function Header() {
                   onClick={() => {
                     setApiKey("");
                     setTempKey("");
-                    setIsOpen(false);
+                    closeApiKeyDialog();
                   }}
                   className="rounded-lg px-3 py-1.5 text-sm font-medium text-zinc-400 transition-colors hover:bg-red-500/10 hover:text-red-400"
                 >
