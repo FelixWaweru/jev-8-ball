@@ -22,10 +22,10 @@ export function Jev8Ball({ text, isThinking, confidence }: Jev8BallProps) {
 
   useEffect(() => {
     if (isThinking) {
-      const newBubbles = Array.from({ length: 15 }).map((_, i) => ({
+      const newBubbles = Array.from({ length: 12 }).map((_, i) => ({
         id: i,
-        size: Math.random() * 20 + 5,
-        left: Math.random() * 80 + 10,
+        size: Math.random() * 14 + 4,
+        left: Math.random() * 70 + 15,
         delay: Math.random() * 2,
         duration: 2 + Math.random() * 2,
       }));
@@ -42,18 +42,17 @@ export function Jev8Ball({ text, isThinking, confidence }: Jev8BallProps) {
     confidence !== undefined &&
     confidence !== null &&
     Number.isFinite(confidence)
-      ? `${(confidence * 100).toFixed(0)}% confidence`
+      ? `${(confidence * 100).toFixed(0)}% conf.`
       : "";
 
   return (
-    <div className="relative w-full h-full flex items-center justify-center filter drop-shadow-[0_0_30px_rgba(255,255,255,0.05)]">
+    <div className="relative h-full w-full">
       <motion.div
         animate={
           isThinking
             ? {
-                x: [0, -4, 4, -4, 4, 0],
+                x: [0, -3, 3, -3, 3, 0],
                 y: [0, 2, -2, 2, -2, 0],
-                rotate: [0, -1, 1, -1, 1, 0],
               }
             : {}
         }
@@ -62,90 +61,111 @@ export function Jev8Ball({ text, isThinking, confidence }: Jev8BallProps) {
           repeat: isThinking ? Infinity : 0,
           repeatType: "mirror",
         }}
-        className="w-full h-full rounded-full bg-gradient-to-tr from-black via-zinc-900 to-zinc-700 shadow-[inset_-20px_-20px_60px_rgba(0,0,0,0.9),0_20px_40px_rgba(0,0,0,0.8)] border border-zinc-800 relative overflow-hidden"
+        className="absolute inset-0 overflow-hidden rounded-full border border-zinc-800 bg-gradient-to-tr from-black via-zinc-900 to-zinc-700 shadow-[inset_-16px_-16px_48px_rgba(0,0,0,0.9)]"
       >
-        <div className="absolute top-[10%] left-[20%] w-[40%] h-[30%] bg-gradient-to-b from-white/20 to-transparent rounded-full blur-md transform -rotate-45" />
+        <div className="pointer-events-none absolute top-[10%] left-[18%] h-[28%] w-[38%] -rotate-45 rounded-full bg-gradient-to-b from-white/20 to-transparent blur-md" />
 
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-[55%] h-[55%] rounded-full bg-zinc-950 shadow-[inset_0_0_30px_rgba(0,0,0,1)] border-4 border-zinc-800/80 relative overflow-hidden">
+        {/* Inner window — size container so type scales with the ball, not the viewport */}
+        <div
+          className="@container/window absolute inset-[18%] overflow-hidden rounded-full border-[3px] border-zinc-800/80 bg-zinc-950 shadow-[inset_0_0_24px_rgba(0,0,0,1)]"
+          style={{ clipPath: "circle(50% at 50% 50%)" }}
+        >
+          <motion.div
+            animate={{
+              y: isThinking ? ["0%", "5%", "-5%", "0%"] : "0%",
+            }}
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute inset-[-20%] rounded-[40%] bg-gradient-to-b from-blue-900/40 to-black opacity-60 blur-sm mix-blend-screen"
+          />
+
+          {isThinking && (
+            <div className="pointer-events-none absolute inset-0 overflow-hidden">
+              {bubbles.map((bubble) => (
+                <motion.div
+                  key={bubble.id}
+                  initial={{ y: "120%", x: "-50%", opacity: 0 }}
+                  animate={{ y: "-20%", opacity: [0, 0.8, 0] }}
+                  transition={{
+                    duration: bubble.duration,
+                    repeat: Infinity,
+                    delay: bubble.delay,
+                    ease: "linear",
+                  }}
+                  className="absolute rounded-full bg-blue-400/30 blur-[1px]"
+                  style={{
+                    width: bubble.size,
+                    height: bubble.size,
+                    left: `${bubble.left}%`,
+                  }}
+                />
+              ))}
+            </div>
+          )}
+
+          {/*
+            Triangle + copy are one layer. The window clips to a circle so
+            the die can float in from below / out the top without leaking.
+          */}
+          <AnimatePresence mode="wait">
             <motion.div
-              animate={{
-                y: isThinking ? ["0%", "5%", "-5%", "0%"] : "0%",
-                rotate: isThinking ? [0, 2, -2, 0] : 0,
+              key={text}
+              initial={{ opacity: 0, y: "52%" }}
+              animate={{ opacity: 1, y: "0%" }}
+              exit={{
+                opacity: 0,
+                y: "-52%",
+                transition: {
+                  duration: 0.4,
+                  ease: [0.4, 0, 0.8, 1],
+                  opacity: { duration: 0.28, ease: "easeIn" },
+                },
               }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute inset-[-20%] bg-gradient-to-b from-blue-900/40 to-black rounded-[40%] blur-sm opacity-60 mix-blend-screen"
-            />
-
-            {isThinking && (
-              <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                {bubbles.map((bubble) => (
-                  <motion.div
-                    key={bubble.id}
-                    initial={{ y: "120%", x: "-50%", opacity: 0 }}
-                    animate={{ y: "-20%", opacity: [0, 0.8, 0] }}
-                    transition={{
-                      duration: bubble.duration,
-                      repeat: Infinity,
-                      delay: bubble.delay,
-                      ease: "linear",
-                    }}
-                    className="absolute bg-blue-400/30 rounded-full blur-[1px]"
-                    style={{
-                      width: bubble.size,
-                      height: bubble.size,
-                      left: `${bubble.left}%`,
-                    }}
-                  />
-                ))}
-              </div>
-            )}
-
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={text}
-                initial={{ opacity: 0, y: 30, scale: 0.8, rotateX: 60 }}
-                animate={{ opacity: 1, y: 0, scale: 1, rotateX: 0 }}
-                exit={{
-                  opacity: 0,
-                  y: -20,
-                  scale: 0.9,
-                  filter: "blur(4px)",
-                }}
-                transition={{ duration: 0.8, type: "spring", bounce: 0.4 }}
-                className="absolute inset-0 flex items-center justify-center z-10"
+              transition={{
+                duration: 0.48,
+                ease: [0.22, 1, 0.36, 1],
+                opacity: { duration: 0.36, ease: "easeOut" },
+              }}
+              className="absolute inset-0"
+            >
+              <svg
+                className="absolute inset-0 h-full w-full drop-shadow-[0_0_12px_rgba(59,130,246,0.45)]"
+                viewBox="0 0 100 100"
+                preserveAspectRatio="xMidYMid meet"
+                aria-hidden
               >
-                {/* Upside-down triangle: wide top, tip bottom */}
-                <svg
-                  className="absolute inset-0 w-full h-full opacity-60 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]"
-                  viewBox="0 0 100 100"
-                  preserveAspectRatio="xMidYMid meet"
-                >
-                  <polygon
-                    points="10,20 90,20 50,85"
-                    fill="#1e3a8a"
-                    stroke="#3b82f6"
-                    strokeWidth="1"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+                <polygon
+                  points="16,20 84,20 50,84"
+                  fill="#1e3a8a"
+                  fillOpacity="0.85"
+                  stroke="#3b82f6"
+                  strokeWidth="1.2"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              <div
+                className="absolute z-10 flex flex-col items-center justify-center overflow-hidden text-center"
+                style={{
+                  // Rectangle inscribed in inverted triangle (base y=20, tip y=84).
+                  // At y≈48 the triangle is ~40 wide → keep the box at 40% centered.
+                  left: "30%",
+                  width: "40%",
+                  top: "24%",
+                  height: "30%",
+                }}
+              >
+                <p className="w-full break-words text-[length:clamp(7px,7.2cqi,13px)] leading-[1.15] font-bold tracking-normal text-blue-100 uppercase">
+                  {displayText}
+                </p>
+                {subText ? (
+                  <p className="mt-[2px] w-full truncate text-[length:clamp(6px,4.6cqi,9px)] leading-none tracking-normal text-blue-300/80 uppercase">
+                    {subText}
+                  </p>
+                ) : null}
+              </div>
+            </motion.div>
+          </AnimatePresence>
 
-                {/* Text clipped to triangle interior */}
-                <div className="relative z-20 flex flex-col items-center justify-start pt-[18%] w-[58%] max-h-[48%] overflow-hidden text-center px-0.5">
-                  <h4 className="text-blue-100 font-bold text-[9px] sm:text-[10px] md:text-xs tracking-wide leading-tight drop-shadow-md mix-blend-plus-lighter uppercase break-words line-clamp-3 w-full">
-                    {displayText}
-                  </h4>
-                  {subText && (
-                    <p className="text-[8px] sm:text-[9px] text-blue-300/80 mt-0.5 uppercase tracking-wider leading-tight line-clamp-1 w-full">
-                      {subText}
-                    </p>
-                  )}
-                </div>
-              </motion.div>
-            </AnimatePresence>
-
-            <div className="absolute inset-0 rounded-full shadow-[inset_0_20px_20px_rgba(255,255,255,0.05)] pointer-events-none" />
-          </div>
+          <div className="pointer-events-none absolute inset-0 rounded-full shadow-[inset_0_16px_16px_rgba(255,255,255,0.05)]" />
         </div>
       </motion.div>
     </div>

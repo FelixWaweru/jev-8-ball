@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Header } from "@/components/header";
 import { Jev8Ball } from "@/components/jev-8-ball";
-import { ProbabilityCards } from "@/components/probability-cards";
 import {
   RightPanel,
   InputMode,
@@ -34,7 +33,7 @@ function ballTextForError(error: unknown): string {
 }
 
 export default function Home() {
-  const { apiKey } = useApiKey();
+  const { apiKey, openApiKeyDialog } = useApiKey();
   const [isProcessing, setIsProcessing] = useState(false);
   const [ballText, setBallText] = useState("ASK ME ANYTHING");
   const [result, setResult] = useState<JevDecisionResult | null>(null);
@@ -46,7 +45,6 @@ export default function Home() {
     owner: string;
     name: string;
   } | null>(null);
-  const [uiMode, setUiMode] = useState<InputMode>("question");
 
   const handleSubmit = async (
     prompt: string,
@@ -55,6 +53,7 @@ export default function Home() {
   ) => {
     if (!apiKey) {
       setBallText("API KEY REQUIRED");
+      openApiKeyDialog();
       return;
     }
     if (!prompt.trim()) return;
@@ -65,7 +64,6 @@ export default function Home() {
     setErrorMessage(null);
     setJevLatencySeconds(null);
     setRepoIdentity(null);
-    setUiMode(mode);
 
     const question = prompt.trim();
     let sourceUrl: string | undefined;
@@ -155,32 +153,34 @@ export default function Home() {
   };
 
   return (
-    <>
+    <div className="flex min-h-dvh flex-col md:h-dvh md:overflow-hidden">
       <Header />
-      <main className="max-w-[1600px] mx-auto px-4 py-4 md:px-8 md:py-8 min-h-[calc(100vh-4rem)] flex flex-col md:flex-row gap-4 sm:gap-6 md:gap-8 md:h-[calc(100vh-4rem)] md:min-h-0 md:overflow-hidden">
-        <section className="w-full md:w-1/2 flex flex-col justify-center gap-4 sm:gap-6 md:gap-8 relative md:min-h-0 md:overflow-y-auto md:overflow-x-visible px-1 sm:px-2 pb-4">
-          <div className="flex-1 flex flex-col items-center justify-center py-2 min-w-0">
-            <div className="w-full max-w-[min(24rem,100%)] aspect-square mx-auto p-2 sm:p-3 overflow-visible shrink-0">
+      <main className="mx-auto flex min-h-0 w-full max-w-[1600px] flex-1 flex-col gap-3 px-3 py-2 md:flex-row md:overflow-hidden">
+        <section className="relative w-full min-h-[min(72vw,20rem)] min-w-0 md:h-full md:min-h-0 md:w-1/2 md:overflow-hidden">
+          <div
+            className="flex h-[min(72vw,20rem)] w-full items-center justify-center md:absolute md:inset-0 md:h-auto"
+            style={{ containerType: "size" }}
+          >
+            {/*
+              Size container (not inline-size) so 100cqh is the pane height.
+              Side length is min(width, height) so the square never crops.
+            */}
+            <div className="aspect-square h-[min(100%,20rem)] w-[min(100%,20rem)] max-h-full max-w-full md:h-[min(100cqw,100cqh)] md:w-[min(100cqw,100cqh)]">
               <Jev8Ball
                 text={ballText}
                 isThinking={isProcessing}
                 confidence={result?.confidence}
               />
             </div>
-            <ProbabilityCards
-              alternatives={result?.alternatives ?? []}
-              isLoading={isProcessing}
-              mode={uiMode}
-            />
-            {errorMessage && !isProcessing && !result && (
-              <p className="mt-3 text-xs text-red-400/80 text-center max-w-md px-2">
-                {errorMessage}
-              </p>
-            )}
           </div>
+          {errorMessage && !isProcessing && !result && (
+            <p className="pointer-events-none absolute bottom-1 left-1/2 z-10 max-w-sm -translate-x-1/2 px-2 text-center text-[11px] text-red-400/80">
+              {errorMessage}
+            </p>
+          )}
         </section>
 
-        <section className="w-full md:w-1/2 md:h-full md:min-h-0 py-2 md:py-4 md:pb-8">
+        <section className="flex min-h-[22rem] w-full min-w-0 flex-1 md:h-full md:min-h-0 md:w-1/2">
           <RightPanel
             onSubmit={handleSubmit}
             isProcessing={isProcessing}
@@ -191,10 +191,9 @@ export default function Home() {
               setResult(null);
               setJevLatencySeconds(null);
             }}
-            onModeChange={setUiMode}
           />
         </section>
       </main>
-    </>
+    </div>
   );
 }

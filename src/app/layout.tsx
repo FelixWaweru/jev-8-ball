@@ -61,7 +61,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body
-        className={`${inter.className} min-h-screen bg-background text-foreground antialiased selection:bg-white/10 selection:text-white overflow-x-hidden`}
+        className={`${inter.className} min-h-dvh bg-background text-foreground antialiased selection:bg-white/10 selection:text-white overflow-x-hidden`}
       >
         <ApiKeyProvider>{children}</ApiKeyProvider>
       </body>

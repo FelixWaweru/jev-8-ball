@@ -5,6 +5,9 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 interface ApiKeyContextType {
   apiKey: string;
   setApiKey: (key: string) => void;
+  isApiKeyDialogOpen: boolean;
+  openApiKeyDialog: () => void;
+  closeApiKeyDialog: () => void;
 }
 
 const ApiKeyContext = createContext<ApiKeyContextType | undefined>(undefined);
@@ -14,6 +17,7 @@ const LEGACY_DISPERSL_KEY = "dispersl_api_key";
 
 export function ApiKeyProvider({ children }: { children: React.ReactNode }) {
   const [apiKey, setApiKeyState] = useState("");
+  const [isApiKeyDialogOpen, setIsApiKeyDialogOpen] = useState(false);
 
   useEffect(() => {
     const storedKey = localStorage.getItem(OPENROUTER_KEY);
@@ -43,8 +47,19 @@ export function ApiKeyProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const openApiKeyDialog = () => setIsApiKeyDialogOpen(true);
+  const closeApiKeyDialog = () => setIsApiKeyDialogOpen(false);
+
   return (
-    <ApiKeyContext.Provider value={{ apiKey, setApiKey }}>
+    <ApiKeyContext.Provider
+      value={{
+        apiKey,
+        setApiKey,
+        isApiKeyDialogOpen,
+        openApiKeyDialog,
+        closeApiKeyDialog,
+      }}
+    >
       {children}
     </ApiKeyContext.Provider>
   );
