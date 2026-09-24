@@ -21,7 +21,7 @@ export function DecisionPanel({
   repo,
   onDismiss,
 }: DecisionPanelProps) {
-  const rows = result.alternatives.slice(0, 5);
+  const rows = result.alternatives.slice(0, 3);
 
   return (
     <motion.div
