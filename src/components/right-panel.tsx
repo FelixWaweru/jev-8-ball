@@ -154,13 +154,12 @@ export function RightPanel({
         {!result && (
           <div className="flex min-h-0 flex-1 items-center justify-center rounded-lg border border-dashed border-white/10 px-3 py-2 text-center text-[11px] leading-snug text-zinc-500">
             <span>
-              Ask a question to see other likely answers.
               {activeMode === "repo" && (
                 <>
                   <br />
                   Ask a question to see likely answers about your code.
                 </>
-              )}
+              )}: Ask a question to see other likely answers.
             </span>
           </div>
         )}
@@ -190,12 +189,12 @@ export function RightPanel({
                 aria-hidden
               />
               <a
-                href="https://codefundi.app"
+                href="https://codefundi.app/?utm_source=jev-8-ball&utm_medium=referral&utm_campaign=jev-8-ball"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="truncate text-zinc-300 underline-offset-2 transition-colors hover:text-white hover:underline"
               >
-                Codefundi
+                CodeFundi
               </a>
             </span>
             <button
