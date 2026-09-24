@@ -4,6 +4,9 @@ The worlds most powerful Magic 8 Ball powered by Jev.
 
 Live at [8-ball.codefundi.app](https://8-ball.codefundi.app). Ask a yes/no-style question (or scan a GitHub repo with CodeFundi) and get a classic 8-ball phrase with calibrated probabilities from [TypeSafe Jev](https://openrouter.ai/typesafe/jev-1.13) on [OpenRouter](https://openrouter.ai).
 
+## Docs
+Read full [Docs.md](https://www.codefundi.app/repo/FelixWaweru/jev-8-ball/).
+
 ## How it works
 
 - Jev is a **System One decision model**, not a chat LLM.
@@ -44,3 +47,5 @@ Open [http://localhost:3000](http://localhost:3000), click **Set OpenRouter Key*
 ## Stack
 
 Next.js, React, TypeScript, Tailwind CSS, Framer Motion, CodeFundi, OpenRouter / TypeSafe Jev.
+
+
