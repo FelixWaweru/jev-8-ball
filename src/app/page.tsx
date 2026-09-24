@@ -7,10 +7,11 @@ import {
   RightPanel,
   InputMode,
   type RepoSubmitExtra,
+  type TabDecisionState,
 } from "@/components/right-panel";
 import { useApiKey } from "@/context/api-key-context";
 import { askJevEightBall } from "@/lib/jev/client";
-import { JevRequestError, type JevDecisionResult } from "@/lib/jev/types";
+import { JevRequestError } from "@/lib/jev/types";
 import {
   normalizeRepoUrl,
   parseGithubOwnerRepo,
@@ -20,6 +21,19 @@ import type {
   RepoBlueprint,
   RepositoryIndexInitRepo,
 } from "@/lib/codefundi/types";
+
+const EMPTY_TAB_DECISION: TabDecisionState = {
+  result: null,
+  latencySeconds: null,
+  repo: null,
+};
+
+function emptyDecisions(): Record<InputMode, TabDecisionState> {
+  return {
+    question: { ...EMPTY_TAB_DECISION },
+    repo: { ...EMPTY_TAB_DECISION },
+  };
+}
 
 function ballTextForError(error: unknown): string {
   if (error instanceof JevRequestError) {
@@ -32,19 +46,38 @@ function ballTextForError(error: unknown): string {
   return "DECISION FAILED";
 }
 
+function ballTextForTab(decision: TabDecisionState): string {
+  if (decision.result) return decision.result.phrase.toUpperCase();
+  return "ASK ME ANYTHING";
+}
+
 export default function Home() {
   const { apiKey, openApiKeyDialog } = useApiKey();
+  const [activeMode, setActiveMode] = useState<InputMode>("question");
   const [isProcessing, setIsProcessing] = useState(false);
   const [ballText, setBallText] = useState("ASK ME ANYTHING");
-  const [result, setResult] = useState<JevDecisionResult | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [jevLatencySeconds, setJevLatencySeconds] = useState<number | null>(
-    null
-  );
-  const [repoIdentity, setRepoIdentity] = useState<{
-    owner: string;
-    name: string;
-  } | null>(null);
+  const [decisionsByMode, setDecisionsByMode] = useState(emptyDecisions);
+
+  const activeDecision = decisionsByMode[activeMode];
+
+  const setTabDecision = (
+    mode: InputMode,
+    patch: Partial<TabDecisionState>
+  ) => {
+    setDecisionsByMode((prev) => ({
+      ...prev,
+      [mode]: { ...prev[mode], ...patch },
+    }));
+  };
+
+  const handleModeChange = (mode: InputMode) => {
+    setActiveMode(mode);
+    if (!isProcessing) {
+      setBallText(ballTextForTab(decisionsByMode[mode]));
+      setErrorMessage(null);
+    }
+  };
 
   const handleSubmit = async (
     prompt: string,
@@ -58,12 +91,15 @@ export default function Home() {
     }
     if (!prompt.trim()) return;
 
+    setActiveMode(mode);
     setIsProcessing(true);
     setBallText("ASKING JEV...");
-    setResult(null);
     setErrorMessage(null);
-    setJevLatencySeconds(null);
-    setRepoIdentity(null);
+    setTabDecision(mode, {
+      result: null,
+      latencySeconds: null,
+      repo: null,
+    });
 
     const question = prompt.trim();
     let sourceUrl: string | undefined;
@@ -123,7 +159,6 @@ export default function Home() {
           blueprint,
           index,
         });
-        setRepoIdentity(identity);
         setBallText("ASKING JEV...");
       }
 
@@ -135,14 +170,19 @@ export default function Home() {
       });
       const latencySeconds = (performance.now() - t0) / 1000;
 
-      setJevLatencySeconds(latencySeconds);
-      setResult(decision);
+      setTabDecision(mode, {
+        result: decision,
+        latencySeconds,
+        repo: identity,
+      });
       setBallText(decision.phrase.toUpperCase());
     } catch (error) {
       console.error(error);
-      setResult(null);
-      setJevLatencySeconds(null);
-      setRepoIdentity(null);
+      setTabDecision(mode, {
+        result: null,
+        latencySeconds: null,
+        repo: null,
+      });
       setBallText(ballTextForError(error));
       setErrorMessage(
         error instanceof Error ? error.message : "Decision failed"
@@ -169,11 +209,11 @@ export default function Home() {
               <Jev8Ball
                 text={ballText}
                 isThinking={isProcessing}
-                confidence={result?.confidence}
+                confidence={activeDecision.result?.confidence}
               />
             </div>
           </div>
-          {errorMessage && !isProcessing && !result && (
+          {errorMessage && !isProcessing && !activeDecision.result && (
             <p className="pointer-events-none absolute bottom-1 left-1/2 z-10 max-w-sm -translate-x-1/2 px-2 text-center text-[11px] text-red-400/80">
               {errorMessage}
             </p>
@@ -184,12 +224,16 @@ export default function Home() {
           <RightPanel
             onSubmit={handleSubmit}
             isProcessing={isProcessing}
-            result={result}
-            latencySeconds={jevLatencySeconds}
-            repo={result ? repoIdentity : null}
+            decisionsByMode={decisionsByMode}
+            activeMode={activeMode}
+            onModeChange={handleModeChange}
             onDismissResult={() => {
-              setResult(null);
-              setJevLatencySeconds(null);
+              setTabDecision(activeMode, {
+                result: null,
+                latencySeconds: null,
+                repo: null,
+              });
+              setBallText("ASK ME ANYTHING");
             }}
           />
         </section>

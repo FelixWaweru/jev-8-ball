@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Send, Github, MessageSquare } from "lucide-react";
+import { useState, type KeyboardEvent } from "react";
+import { Send, Github, MessageSquare, Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { DecisionPanel } from "@/components/decision-panel";
 import type { JevDecisionResult } from "@/lib/jev/types";
@@ -13,6 +13,12 @@ export interface RepoSubmitExtra {
   branch: string;
 }
 
+export interface TabDecisionState {
+  result: JevDecisionResult | null;
+  latencySeconds: number | null;
+  repo: { owner: string; name: string } | null;
+}
+
 interface RightPanelProps {
   onSubmit: (
     prompt: string,
@@ -20,46 +26,49 @@ interface RightPanelProps {
     extraData?: RepoSubmitExtra
   ) => void;
   isProcessing: boolean;
-  result: JevDecisionResult | null;
-  latencySeconds: number | null;
-  repo: { owner: string; name: string } | null;
+  decisionsByMode: Record<InputMode, TabDecisionState>;
+  activeMode: InputMode;
+  onModeChange: (mode: InputMode) => void;
   onDismissResult?: () => void;
-  onModeChange?: (mode: InputMode) => void;
 }
 
 export function RightPanel({
   onSubmit,
   isProcessing,
-  result,
-  latencySeconds,
-  repo,
-  onDismissResult,
+  decisionsByMode,
+  activeMode,
   onModeChange,
+  onDismissResult,
 }: RightPanelProps) {
-  const [activeTab, setActiveTab] = useState<InputMode>("question");
   const [text, setText] = useState("");
   const [repoUrl, setRepoUrl] = useState("");
   const [branch, setBranch] = useState("");
 
-  const setTab = (mode: InputMode) => {
-    setActiveTab(mode);
-    onModeChange?.(mode);
-  };
+  const activeDecision = decisionsByMode[activeMode];
+  const result = activeDecision.result;
+  const latencySeconds = activeDecision.latencySeconds;
+  const repo = activeDecision.repo;
 
   const canSubmit =
     !isProcessing &&
     Boolean(text.trim()) &&
-    (activeTab === "question" || Boolean(repoUrl.trim()));
+    (activeMode === "question" || Boolean(repoUrl.trim()));
 
   const handleSubmit = () => {
     if (!canSubmit) return;
 
-    if (activeTab === "repo") {
+    if (activeMode === "repo") {
       onSubmit(text, "repo", { url: repoUrl.trim(), branch: branch.trim() });
       return;
     }
 
     onSubmit(text, "question");
+  };
+
+  const handleAskKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key !== "Enter" || e.shiftKey || e.nativeEvent.isComposing) return;
+    e.preventDefault();
+    handleSubmit();
   };
 
   return (
@@ -72,14 +81,14 @@ export function RightPanel({
           <button
             key={tab.id}
             type="button"
-            onClick={() => setTab(tab.id)}
+            onClick={() => onModeChange(tab.id)}
             className={`relative flex items-center gap-1.5 overflow-hidden rounded-lg px-2.5 py-1.5 text-xs font-medium transition-all ${
-              activeTab === tab.id
+              activeMode === tab.id
                 ? "bg-white/10 text-white"
                 : "text-zinc-500 hover:bg-white/5 hover:text-zinc-300"
             }`}
           >
-            {activeTab === tab.id && (
+            {activeMode === tab.id && (
               <motion.div
                 layoutId="activeTabBadge"
                 className="absolute inset-0 rounded-lg border border-white/10 bg-gradient-to-r from-blue-500/20 to-purple-500/20"
@@ -95,7 +104,7 @@ export function RightPanel({
 
       <div className="flex min-h-0 flex-1 flex-col gap-2 p-2">
         <AnimatePresence mode="popLayout">
-          {activeTab === "repo" && (
+          {activeMode === "repo" && (
             <motion.div
               initial={{ opacity: 0, y: -6 }}
               animate={{ opacity: 1, y: 0 }}
@@ -133,6 +142,7 @@ export function RightPanel({
         <AnimatePresence>
           {result && latencySeconds !== null && (
             <DecisionPanel
+              key={activeMode}
               result={result}
               latencySeconds={latencySeconds}
               repo={repo}
@@ -144,13 +154,9 @@ export function RightPanel({
         {!result && (
           <div className="flex min-h-0 flex-1 items-center justify-center rounded-lg border border-dashed border-white/10 px-3 py-2 text-center text-[11px] leading-snug text-zinc-500">
             <span>
-              Ask a question to see other likely answers.
-              {activeTab === "repo" && (
-                <>
-                  <br />
-                  Ask a question to see likely answers about your code.
-                </>
-              )}
+              {activeMode === "repo"
+                ? "Ask a question to see likely answers about your code."
+                : "Ask a question to see other likely answers."}
             </span>
           </div>
         )}
@@ -159,20 +165,40 @@ export function RightPanel({
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
+            onKeyDown={handleAskKeyDown}
             disabled={isProcessing}
             placeholder={
-              activeTab === "question"
+              activeMode === "question"
                 ? "Ask the Jev 8 Ball..."
                 : "What should Jev answer about this repo?"
             }
             className="min-h-[4.5rem] w-full resize-none bg-transparent p-2.5 text-sm text-white placeholder-zinc-600 focus:outline-none disabled:opacity-60"
           />
-          <div className="flex items-center justify-end border-t border-white/5 bg-zinc-950/50 p-1.5">
+          <div className="flex items-center justify-between gap-2 border-t border-white/5 bg-zinc-950/50 p-1.5">
+            <span className="flex min-w-0 items-center gap-1.5 text-xs font-medium">
+              <Check
+                size={13}
+                className={
+                  activeMode === "repo"
+                    ? "flex-shrink-0 text-green-400"
+                    : "flex-shrink-0 text-zinc-500"
+                }
+                aria-hidden
+              />
+              <a
+                href="https://codefundi.app/?utm_source=jev-8-ball&utm_medium=referral&utm_campaign=jev-8-ball"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="truncate text-zinc-300 underline-offset-2 transition-colors hover:text-white hover:underline"
+              >
+                CodeFundi
+              </a>
+            </span>
             <button
               type="button"
               onClick={handleSubmit}
               disabled={!canSubmit}
-              className={`flex items-center justify-center gap-1.5 rounded-lg px-4 py-1.5 text-xs font-bold transition-all ${
+              className={`flex flex-shrink-0 items-center justify-center gap-1.5 rounded-lg px-4 py-1.5 text-xs font-bold transition-all ${
                 !canSubmit
                   ? "cursor-not-allowed bg-zinc-800 text-zinc-500"
                   : "bg-white text-black hover:bg-zinc-200"
