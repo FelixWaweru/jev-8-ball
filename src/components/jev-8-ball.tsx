@@ -46,7 +46,7 @@ export function Jev8Ball({ text, isThinking, confidence }: Jev8BallProps) {
       : "";
 
   return (
-    <div className="relative w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 mx-auto flex items-center justify-center filter drop-shadow-[0_0_30px_rgba(255,255,255,0.05)]">
+    <div className="relative w-full h-full flex items-center justify-center filter drop-shadow-[0_0_30px_rgba(255,255,255,0.05)]">
       <motion.div
         animate={
           isThinking
@@ -113,14 +113,16 @@ export function Jev8Ball({ text, isThinking, confidence }: Jev8BallProps) {
                   filter: "blur(4px)",
                 }}
                 transition={{ duration: 0.8, type: "spring", bounce: 0.4 }}
-                className="absolute inset-0 flex items-center justify-center p-4 sm:p-6 text-center z-10"
+                className="absolute inset-0 flex items-center justify-center z-10"
               >
+                {/* Upside-down triangle: wide top, tip bottom */}
                 <svg
                   className="absolute inset-0 w-full h-full opacity-60 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]"
                   viewBox="0 0 100 100"
+                  preserveAspectRatio="xMidYMid meet"
                 >
                   <polygon
-                    points="50,15 90,80 10,80"
+                    points="10,20 90,20 50,85"
                     fill="#1e3a8a"
                     stroke="#3b82f6"
                     strokeWidth="1"
@@ -128,12 +130,13 @@ export function Jev8Ball({ text, isThinking, confidence }: Jev8BallProps) {
                   />
                 </svg>
 
-                <div className="flex flex-col items-center justify-center z-20 max-w-[80%]">
-                  <h4 className="text-blue-100 font-bold text-xs sm:text-sm md:text-base tracking-widest leading-snug drop-shadow-md mix-blend-plus-lighter text-center uppercase">
+                {/* Text clipped to triangle interior */}
+                <div className="relative z-20 flex flex-col items-center justify-start pt-[18%] w-[58%] max-h-[48%] overflow-hidden text-center px-0.5">
+                  <h4 className="text-blue-100 font-bold text-[9px] sm:text-[10px] md:text-xs tracking-wide leading-tight drop-shadow-md mix-blend-plus-lighter uppercase break-words line-clamp-3 w-full">
                     {displayText}
                   </h4>
                   {subText && (
-                    <p className="text-[10px] text-blue-300/80 mt-1 uppercase tracking-wider backdrop-blur-sm">
+                    <p className="text-[8px] sm:text-[9px] text-blue-300/80 mt-0.5 uppercase tracking-wider leading-tight line-clamp-1 w-full">
                       {subText}
                     </p>
                   )}

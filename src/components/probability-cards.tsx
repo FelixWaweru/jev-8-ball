@@ -2,10 +2,12 @@
 
 import { motion } from "framer-motion";
 import type { RankedOutcome } from "@/lib/jev/types";
+import type { InputMode } from "@/components/right-panel";
 
 interface ProbabilityCardsProps {
   alternatives: RankedOutcome[];
   isLoading?: boolean;
+  mode?: InputMode;
 }
 
 function formatPercent(probability: number): string {
@@ -15,6 +17,7 @@ function formatPercent(probability: number): string {
 export function ProbabilityCards({
   alternatives,
   isLoading = false,
+  mode = "question",
 }: ProbabilityCardsProps) {
   if (isLoading) {
     return (
@@ -26,7 +29,9 @@ export function ProbabilityCards({
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: idx * 0.05 }}
             className={`bg-zinc-900/60 border border-white/5 rounded-lg p-3 h-[4.25rem] animate-pulse ${
-              idx === 4 ? "sm:col-span-2 sm:max-w-[calc(50%-0.375rem)] sm:mx-auto sm:w-full" : ""
+              idx === 4
+                ? "sm:col-span-2 sm:max-w-[calc(50%-0.375rem)] sm:mx-auto sm:w-full"
+                : ""
             }`}
           />
         ))}
@@ -36,8 +41,13 @@ export function ProbabilityCards({
 
   if (alternatives.length === 0) {
     return (
-      <div className="w-full max-w-lg mx-auto mt-6 sm:mt-8 min-h-20 border border-dashed border-white/10 rounded-xl flex items-center justify-center text-zinc-500 text-sm px-4 text-center">
-        Ask a question to see other likely answers.
+      <div className="w-full max-w-lg mx-auto mt-6 sm:mt-8 min-h-20 border border-dashed border-white/10 rounded-xl flex flex-col items-center justify-center text-zinc-500 text-sm px-4 py-4 text-center gap-1">
+        <span>Ask a question to see other likely answers.</span>
+        {mode === "repo" && (
+          <span className="text-zinc-600 text-xs">
+            Ask a question to see likely answers about your code.
+          </span>
+        )}
       </div>
     );
   }
