@@ -154,14 +154,9 @@ export function RightPanel({
         {!result && (
           <div className="flex min-h-0 flex-1 items-center justify-center rounded-lg border border-dashed border-white/10 px-3 py-2 text-center text-[11px] leading-snug text-zinc-500">
             <span>
-              {activeMode === "repo" && (
-                <>
-                  Ask a question to see likely answers about your code.
-              )}
-              {activeMode === "question" && (
-                <>
-                  Ask a question to see other likely answers.
-              )}
+              {activeMode === "repo"
+                ? "Ask a question to see likely answers about your code."
+                : "Ask a question to see other likely answers."}
             </span>
           </div>
         )}
