@@ -156,10 +156,12 @@ export function RightPanel({
             <span>
               {activeMode === "repo" && (
                 <>
-                  <br />
                   Ask a question to see likely answers about your code.
-                </>
-              )}: Ask a question to see other likely answers.
+              )}
+              {activeMode === "question" && (
+                <>
+                  Ask a question to see other likely answers.
+              )}
             </span>
           </div>
         )}
