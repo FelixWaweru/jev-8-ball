@@ -16,71 +16,72 @@ export function Header() {
   };
 
   return (
-    <header className="w-full h-16 border-b border-border/50 glass-panel flex items-center justify-between gap-3 px-4 sm:px-6 sticky top-0 z-50">
-      <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-        <div className="w-8 h-8 flex-shrink-0 rounded-full bg-gradient-to-tr from-zinc-800 to-zinc-600 flex items-center justify-center shadow-inner border border-white/10">
-          <span className="font-bold text-white text-sm">8</span>
+    <header className="z-50 flex h-11 w-full shrink-0 items-center justify-between gap-2 border-b border-border/50 px-3 glass-panel">
+      <div className="flex min-w-0 items-center gap-2">
+        <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full border border-white/10 bg-gradient-to-tr from-zinc-800 to-zinc-600">
+          <span className="text-[10px] font-bold text-white">8</span>
         </div>
-        <h1 className="text-lg sm:text-xl font-bold tracking-tight text-white/90 truncate">
+        <h1 className="truncate text-sm font-semibold tracking-tight text-white/90">
           Jev 8 Ball
         </h1>
       </div>
 
       <button
+        type="button"
         onClick={() => {
           setTempKey(apiKey);
           setIsOpen(true);
         }}
-        className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 border flex-shrink-0 ${
+        className={`flex flex-shrink-0 items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-medium transition-all ${
           apiKey
-            ? "bg-green-500/10 text-green-400 border-green-500/20 hover:bg-green-500/20"
-            : "bg-white/5 text-zinc-300 border-white/10 hover:bg-white/10"
+            ? "border-green-500/20 bg-green-500/10 text-green-400 hover:bg-green-500/20"
+            : "border-white/10 bg-white/5 text-zinc-300 hover:bg-white/10"
         }`}
         title={apiKey ? "OpenRouter API Key Set" : "Set OpenRouter Key"}
       >
-        {apiKey ? <ShieldCheck size={16} /> : <KeyRound size={16} />}
+        {apiKey ? <ShieldCheck size={12} /> : <KeyRound size={12} />}
         <span className="hidden sm:inline">
           {apiKey ? "API Key Set" : "Set OpenRouter Key"}
         </span>
-        <span className="sm:hidden">{apiKey ? "Key" : "Key"}</span>
+        <span className="sm:hidden">Key</span>
       </button>
 
       <AnimatePresence>
         {isOpen && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              className="w-full max-w-md bg-zinc-900 border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
+              className="w-full max-w-md overflow-hidden rounded-2xl border border-white/10 bg-zinc-900 shadow-2xl"
             >
-              <div className="flex items-center justify-between p-5 border-b border-white/5 bg-white/[0.02]">
-                <h2 className="text-lg font-semibold text-white">
+              <div className="flex items-center justify-between border-b border-white/5 bg-white/[0.02] p-4">
+                <h2 className="text-base font-semibold text-white">
                   OpenRouter API Key
                 </h2>
                 <button
+                  type="button"
                   onClick={() => setIsOpen(false)}
-                  className="p-1 rounded-md text-zinc-400 hover:text-white hover:bg-white/10 transition-colors"
+                  className="rounded-md p-1 text-zinc-400 transition-colors hover:bg-white/10 hover:text-white"
                 >
-                  <X size={20} />
+                  <X size={18} />
                 </button>
               </div>
-              <div className="p-5 space-y-4">
+              <div className="space-y-3 p-4">
                 <p className="text-sm text-zinc-400">
                   Enter your OpenRouter API key to ask Jev. Your key is stored
-                  only in this browser and is billed to your OpenRouter
-                  account.{" "}
+                  only in this browser and is billed to your OpenRouter account.{" "}
                   <a
                     href="https://openrouter.ai/settings/keys"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-400 hover:text-blue-300 underline underline-offset-2"
+                    className="text-blue-400 underline underline-offset-2 hover:text-blue-300"
                   >
                     Get a key
                   </a>
                 </p>
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-zinc-500 uppercase tracking-wider">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-medium tracking-wider text-zinc-500 uppercase">
                     API Key
                   </label>
                   <input
@@ -88,30 +89,33 @@ export function Header() {
                     value={tempKey}
                     onChange={(e) => setTempKey(e.target.value)}
                     placeholder="sk-or-..."
-                    className="w-full px-4 py-3 bg-zinc-950 border border-zinc-800 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-zinc-700 focus:border-transparent transition-all"
+                    className="w-full rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-2 text-white transition-all focus:border-transparent focus:ring-2 focus:ring-zinc-700 focus:outline-none"
                   />
                 </div>
               </div>
-              <div className="p-5 border-t border-white/5 bg-white/[0.02] flex justify-end gap-3">
+              <div className="flex justify-end gap-2 border-t border-white/5 bg-white/[0.02] p-4">
                 <button
+                  type="button"
                   onClick={() => setIsOpen(false)}
-                  className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-colors"
+                  className="rounded-lg px-3 py-1.5 text-sm font-medium text-zinc-400 transition-colors hover:bg-white/5 hover:text-white"
                 >
                   Cancel
                 </button>
                 <button
+                  type="button"
                   onClick={() => {
                     setApiKey("");
                     setTempKey("");
                     setIsOpen(false);
                   }}
-                  className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                  className="rounded-lg px-3 py-1.5 text-sm font-medium text-zinc-400 transition-colors hover:bg-red-500/10 hover:text-red-400"
                 >
                   Clear
                 </button>
                 <button
+                  type="button"
                   onClick={handleSave}
-                  className="px-4 py-2 rounded-lg text-sm font-medium bg-white text-black hover:bg-zinc-200 transition-colors shadow-[0_0_15px_rgba(255,255,255,0.1)]"
+                  className="rounded-lg bg-white px-3 py-1.5 text-sm font-medium text-black transition-colors hover:bg-zinc-200"
                 >
                   Save Key
                 </button>
