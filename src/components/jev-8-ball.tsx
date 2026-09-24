@@ -66,7 +66,10 @@ export function Jev8Ball({ text, isThinking, confidence }: Jev8BallProps) {
         <div className="pointer-events-none absolute top-[10%] left-[18%] h-[28%] w-[38%] -rotate-45 rounded-full bg-gradient-to-b from-white/20 to-transparent blur-md" />
 
         {/* Inner window — size container so type scales with the ball, not the viewport */}
-        <div className="@container/window absolute inset-[18%] overflow-hidden rounded-full border-[3px] border-zinc-800/80 bg-zinc-950 shadow-[inset_0_0_24px_rgba(0,0,0,1)]">
+        <div
+          className="@container/window absolute inset-[18%] overflow-hidden rounded-full border-[3px] border-zinc-800/80 bg-zinc-950 shadow-[inset_0_0_24px_rgba(0,0,0,1)]"
+          style={{ clipPath: "circle(50% at 50% 50%)" }}
+        >
           <motion.div
             animate={{
               y: isThinking ? ["0%", "5%", "-5%", "0%"] : "0%",
@@ -100,51 +103,65 @@ export function Jev8Ball({ text, isThinking, confidence }: Jev8BallProps) {
           )}
 
           {/*
-            Inverted triangle inscribed in the circular window.
-            Text sits in the largest rectangle that actually fits inside
-            the wide top of the triangle — not a 58% box that crosses the edges.
+            Triangle + copy are one layer. The window clips to a circle so
+            the die can float in from below / out the top without leaking.
           */}
-          <svg
-            className="absolute inset-0 h-full w-full drop-shadow-[0_0_12px_rgba(59,130,246,0.45)]"
-            viewBox="0 0 100 100"
-            preserveAspectRatio="xMidYMid meet"
-            aria-hidden
-          >
-            <polygon
-              points="16,20 84,20 50,84"
-              fill="#1e3a8a"
-              fillOpacity="0.85"
-              stroke="#3b82f6"
-              strokeWidth="1.2"
-              strokeLinejoin="round"
-            />
-          </svg>
-
           <AnimatePresence mode="wait">
             <motion.div
               key={text}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.35 }}
-              className="absolute z-10 flex flex-col items-center justify-center overflow-hidden text-center"
-              style={{
-                // Rectangle inscribed in inverted triangle (base y=20, tip y=84).
-                // At y≈48 the triangle is ~40 wide → keep the box at 40% centered.
-                left: "30%",
-                width: "40%",
-                top: "24%",
-                height: "30%",
+              initial={{ opacity: 0, y: "52%" }}
+              animate={{ opacity: 1, y: "0%" }}
+              exit={{
+                opacity: 0,
+                y: "-52%",
+                transition: {
+                  duration: 0.4,
+                  ease: [0.4, 0, 0.8, 1],
+                  opacity: { duration: 0.28, ease: "easeIn" },
+                },
               }}
+              transition={{
+                duration: 0.48,
+                ease: [0.22, 1, 0.36, 1],
+                opacity: { duration: 0.36, ease: "easeOut" },
+              }}
+              className="absolute inset-0"
             >
-              <p className="w-full break-words text-[length:clamp(7px,7.2cqi,13px)] leading-[1.15] font-bold tracking-normal text-blue-100 uppercase">
-                {displayText}
-              </p>
-              {subText ? (
-                <p className="mt-[2px] w-full truncate text-[length:clamp(6px,4.6cqi,9px)] leading-none tracking-normal text-blue-300/80 uppercase">
-                  {subText}
+              <svg
+                className="absolute inset-0 h-full w-full drop-shadow-[0_0_12px_rgba(59,130,246,0.45)]"
+                viewBox="0 0 100 100"
+                preserveAspectRatio="xMidYMid meet"
+                aria-hidden
+              >
+                <polygon
+                  points="16,20 84,20 50,84"
+                  fill="#1e3a8a"
+                  fillOpacity="0.85"
+                  stroke="#3b82f6"
+                  strokeWidth="1.2"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              <div
+                className="absolute z-10 flex flex-col items-center justify-center overflow-hidden text-center"
+                style={{
+                  // Rectangle inscribed in inverted triangle (base y=20, tip y=84).
+                  // At y≈48 the triangle is ~40 wide → keep the box at 40% centered.
+                  left: "30%",
+                  width: "40%",
+                  top: "24%",
+                  height: "30%",
+                }}
+              >
+                <p className="w-full break-words text-[length:clamp(7px,7.2cqi,13px)] leading-[1.15] font-bold tracking-normal text-blue-100 uppercase">
+                  {displayText}
                 </p>
-              ) : null}
+                {subText ? (
+                  <p className="mt-[2px] w-full truncate text-[length:clamp(6px,4.6cqi,9px)] leading-none tracking-normal text-blue-300/80 uppercase">
+                    {subText}
+                  </p>
+                ) : null}
+              </div>
             </motion.div>
           </AnimatePresence>
 
