@@ -95,7 +95,7 @@ export function DecisionPanel({
                   >
                     {item.label}
                   </p>
-                  <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full border border-blue-500/30 bg-blue-500/10 text-[9px] font-bold text-blue-300 tabular-nums">
+                  <span className="flex h-5 min-w-[2.75rem] flex-shrink-0 items-center justify-center rounded-full border border-blue-500/30 bg-blue-500/10 px-2 text-[10px] font-bold text-blue-300 tabular-nums">
                     {formatPercent(item.probability)}
                   </span>
                 </li>

@@ -155,16 +155,25 @@ export default function Home() {
     <div className="flex min-h-dvh flex-col md:h-dvh md:overflow-hidden">
       <Header />
       <main className="mx-auto flex min-h-0 w-full max-w-[1600px] flex-1 flex-col gap-3 px-3 py-2 md:flex-row md:overflow-hidden">
-        <section className="@container/ball flex min-h-[min(72vw,22rem)] w-full min-w-0 flex-col items-center justify-center md:h-full md:min-h-0 md:w-1/2">
-          <div className="aspect-square w-[min(100%,22rem)] md:w-[min(100cqw,100cqh)]">
-            <Jev8Ball
-              text={ballText}
-              isThinking={isProcessing}
-              confidence={result?.confidence}
-            />
+        <section className="relative w-full min-h-[min(72vw,20rem)] min-w-0 md:h-full md:min-h-0 md:w-1/2 md:overflow-hidden">
+          <div
+            className="flex h-[min(72vw,20rem)] w-full items-center justify-center md:absolute md:inset-0 md:h-auto"
+            style={{ containerType: "size" }}
+          >
+            {/*
+              Size container (not inline-size) so 100cqh is the pane height.
+              Side length is min(width, height) so the square never crops.
+            */}
+            <div className="aspect-square h-[min(100%,20rem)] w-[min(100%,20rem)] max-h-full max-w-full md:h-[min(100cqw,100cqh)] md:w-[min(100cqw,100cqh)]">
+              <Jev8Ball
+                text={ballText}
+                isThinking={isProcessing}
+                confidence={result?.confidence}
+              />
+            </div>
           </div>
           {errorMessage && !isProcessing && !result && (
-            <p className="mt-2 max-w-sm px-2 text-center text-[11px] text-red-400/80">
+            <p className="pointer-events-none absolute bottom-1 left-1/2 z-10 max-w-sm -translate-x-1/2 px-2 text-center text-[11px] text-red-400/80">
               {errorMessage}
             </p>
           )}
